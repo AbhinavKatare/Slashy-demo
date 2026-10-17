@@ -1,0 +1,1712 @@
+openapi: 3.0.0
+paths:
+  /v1/auth/google/url:
+    get:
+      operationId: AuthController_getGoogleAuthUrl
+      summary: Get Google OIDC authorization URL for Custom Tabs
+      parameters:
+        - name: state
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Authorization URL
+      tags: &a1
+        - Auth
+  /v1/auth/microsoft/url:
+    get:
+      operationId: AuthController_getMicrosoftAuthUrl
+      summary: Get Microsoft OIDC authorization URL for Custom Tabs
+      parameters:
+        - name: state
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Authorization URL
+      tags: *a1
+  /v1/auth/oidc/login:
+    post:
+      operationId: AuthController_login
+      summary: Login via OIDC identity token (Google / Microsoft)
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OidcLoginDto"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokensResponseDto"
+      tags: *a1
+  /v1/auth/refresh:
+    post:
+      operationId: AuthController_refresh
+      summary: Rotate refresh token and issue new token pair
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenDto"
+      responses:
+        "200":
+          description: Rotated token pair
+      tags: *a1
+  /v1/auth/logout:
+    post:
+      operationId: AuthController_logout
+      summary: Logout and revoke current device session
+      parameters: []
+      responses:
+        "200":
+          description: ""
+      tags: *a1
+      security:
+        - bearer: []
+  /v1/auth/sessions:
+    get:
+      operationId: AuthController_listSessions
+      summary: List all active sessions for current user
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SessionResponseDto"
+      tags: *a1
+      security:
+        - bearer: []
+  /v1/auth/sessions/{id}:
+    delete:
+      operationId: AuthController_revokeSession
+      summary: Revoke a specific device session
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a1
+      security:
+        - bearer: []
+  /v1/auth/revoke-all:
+    post:
+      operationId: AuthController_revokeAll
+      summary: Revoke all sessions for current user across all devices
+      parameters: []
+      responses:
+        "201":
+          description: ""
+      tags: *a1
+      security:
+        - bearer: []
+  /v1/accounts:
+    get:
+      operationId: AccountsController_listAccounts
+      summary: List all connected accounts for authenticated user
+      parameters: []
+      responses:
+        "200":
+          description: ""
+      tags: &a2
+        - Accounts
+      security: &a3
+        - bearer: []
+  /v1/accounts/connect/url:
+    get:
+      operationId: AccountsController_getConnectUrl
+      summary: Generate OAuth authorization URL with PKCE and requested scope tier
+      parameters:
+        - name: provider
+          required: true
+          in: query
+          schema:
+            example: google
+            enum:
+              - google
+              - microsoft
+            type: string
+        - name: tier
+          required: false
+          in: query
+          schema:
+            default: readonly
+            enum:
+              - readonly
+              - modify_send
+            type: string
+        - name: redirectUri
+          required: true
+          in: query
+          schema:
+            example: inboxcompanion://oauth/callback
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a2
+      security: *a3
+  /v1/accounts/connect/callback:
+    post:
+      operationId: AccountsController_connectCallback
+      summary: Exchange OAuth authorization code + PKCE verifier and store
+        envelope-encrypted tokens
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConnectCallbackDto"
+      responses:
+        "200":
+          description: ""
+      tags: *a2
+      security: *a3
+  /v1/accounts/{id}:
+    get:
+      operationId: AccountsController_getAccount
+      summary: Get details of a connected account
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a2
+      security: *a3
+    delete:
+      operationId: AccountsController_disconnectAccount
+      summary: Disconnect and purge account data
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a2
+      security: *a3
+  /v1/accounts/{id}/disconnect:
+    post:
+      operationId: AccountsController_disconnect
+      summary: Disconnect account, revoke provider token, and optionally purge data
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DisconnectAccountDto"
+      responses:
+        "200":
+          description: ""
+      tags: *a2
+      security: *a3
+  /v1/threads:
+    get:
+      operationId: MailController_listThreads
+      summary: List threads with pagination, folder, or account filter
+      parameters:
+        - name: folder
+          required: false
+          in: query
+          schema:
+            example: inbox
+            type: string
+        - name: accountId
+          required: false
+          in: query
+          schema:
+            example: 018f0000-0000-7000-8000-000000000010
+            type: string
+        - name: labelId
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: isUnread
+          required: false
+          in: query
+          schema:
+            type: boolean
+        - name: cursor
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            default: 20
+            type: number
+      responses:
+        "200":
+          description: ""
+      tags: &a4
+        - Mail
+      security: &a5
+        - bearer: []
+  /v1/threads/{id}:
+    get:
+      operationId: MailController_getThread
+      summary: Get thread details and all constituent messages
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a4
+      security: *a5
+    patch:
+      operationId: MailController_updateThread
+      summary: Update thread flags or folder
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateThreadDto"
+      responses:
+        "200":
+          description: ""
+      tags: *a4
+      security: *a5
+    delete:
+      operationId: MailController_deleteThread
+      summary: Move thread to trash
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a4
+      security: *a5
+  /v1/threads/{id}/modify:
+    patch:
+      operationId: MailController_modifyThread
+      summary: Modify thread (read/unread, star, archive, trash, label) requiring
+        Idempotency-Key with provider confirmation
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: idempotency-key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ModifyThreadActionDto"
+      responses:
+        "200":
+          description: ""
+      tags: *a4
+      security: *a5
+  /v1/threads/bulk:
+    post:
+      operationId: MailController_bulkModifyThreads
+      summary: Perform bulk actions across multiple threads requiring Idempotency-Key
+      parameters:
+        - name: idempotency-key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkModifyThreadsDto"
+      responses:
+        "200":
+          description: ""
+      tags: *a4
+      security: *a5
+  /v1/operations/{id}:
+    get:
+      operationId: MailController_getOperationStatus
+      summary: Poll status and result of an outbox write operation
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a4
+      security: *a5
+  /v1/operations/{id}/undo:
+    post:
+      operationId: MailController_undoOperation
+      summary: Undo an operation by executing its inverse action
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a4
+      security: *a5
+  /v1/mail/send:
+    post:
+      operationId: MailController_sendMessage
+      summary: Send an email message
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendMessageDto"
+      responses:
+        "200":
+          description: ""
+      tags: *a4
+      security: *a5
+  /v1/labels:
+    get:
+      operationId: MailController_listLabels
+      summary: List mail labels
+      parameters:
+        - name: accountId
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a4
+      security: *a5
+    post:
+      operationId: MailController_createLabel
+      summary: Create a new mail label
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLabelDto"
+      responses:
+        "201":
+          description: ""
+      tags: *a4
+      security: *a5
+  /v1/drafts:
+    get:
+      operationId: DraftsController_listDrafts
+      summary: List all message drafts
+      parameters:
+        - name: accountId
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: &a6
+        - Drafts
+      security: &a7
+        - bearer: []
+    post:
+      operationId: DraftsController_createDraft
+      summary: Create a new draft
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDraftDto"
+      responses:
+        "201":
+          description: ""
+      tags: *a6
+      security: *a7
+  /v1/drafts/{id}:
+    get:
+      operationId: DraftsController_getDraft
+      summary: Get draft by ID
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a6
+      security: *a7
+    put:
+      operationId: DraftsController_updateDraft
+      summary: Update an existing draft
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDraftDto"
+      responses:
+        "200":
+          description: ""
+      tags: *a6
+      security: *a7
+    delete:
+      operationId: DraftsController_deleteDraft
+      summary: Delete a draft
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a6
+      security: *a7
+  /v1/drafts/{id}/send:
+    post:
+      operationId: DraftsController_sendDraft
+      summary: Explicitly send a draft with user review hash, undo window, and
+        scheduled send support
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: idempotency-key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          description: Unique client key to prevent double submissions
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendDraftDto"
+      responses:
+        "202":
+          description: ""
+      tags: *a6
+      security: *a7
+  /v1/drafts/send/{sendId}/cancel:
+    post:
+      operationId: DraftsController_cancelSend
+      summary: Cancel a pending send during the undo window or before scheduled time
+      parameters:
+        - name: sendId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a6
+      security: *a7
+  /v1/drafts/attachments/upload:
+    post:
+      operationId: DraftsController_uploadAttachment
+      summary: Upload draft attachment with size, type limits and malware scanning
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadAttachmentDto"
+      responses:
+        "201":
+          description: ""
+      tags: *a6
+      security: *a7
+  /v1/scheduling/send:
+    post:
+      operationId: SchedulingController_scheduleDraft
+      summary: Schedule an email draft to be sent at a future timestamp
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScheduleDraftDto"
+      responses:
+        "200":
+          description: ""
+      tags: &a8
+        - Scheduling
+      security: &a9
+        - bearer: []
+  /v1/scheduling:
+    get:
+      operationId: SchedulingController_listScheduled
+      summary: List all pending scheduled messages
+      parameters: []
+      responses:
+        "200":
+          description: ""
+      tags: *a8
+      security: *a9
+  /v1/scheduling/{id}:
+    delete:
+      operationId: SchedulingController_cancelScheduled
+      summary: Cancel a pending scheduled message
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a8
+      security: *a9
+  /v1/sync/pull:
+    get:
+      operationId: SyncController_pull
+      summary: Pull delta changes since last sync cursor (Cursor-based pagination)
+      parameters:
+        - name: accountId
+          required: false
+          in: query
+          schema:
+            example: 018f0000-0000-7000-8000-000000000010
+            type: string
+        - name: cursor
+          required: false
+          in: query
+          schema:
+            example: 2026-10-13T12:00:00.000Z
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: &a10
+        - Sync
+      security:
+        - bearer: []
+  /v1/sync/push:
+    post:
+      operationId: SyncController_push
+      summary: Replay batched outbox write operations idempotently
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PushOutboxBatchDto"
+      responses:
+        "200":
+          description: ""
+      tags: *a10
+      security:
+        - bearer: []
+  /v1/sync/status/{accountId}:
+    get:
+      operationId: SyncController_getSyncStatus
+      summary: Get current sync status, cursor state, and counts for an account
+      parameters:
+        - name: accountId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a10
+      security:
+        - bearer: []
+  /v1/sync/webhooks/google:
+    post:
+      operationId: SyncController_handleGoogleWebhook
+      summary: Google Cloud Pub/Sub Push Notification receiver for Gmail watch
+      parameters: []
+      responses:
+        "200":
+          description: ""
+      tags: *a10
+  /v1/sync/webhooks/microsoft:
+    get:
+      operationId: SyncController_handleMicrosoftHandshake
+      summary: Microsoft Graph webhook handshake validation token echo
+      parameters:
+        - name: validationToken
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a10
+    post:
+      operationId: SyncController_handleMicrosoftWebhook
+      summary: Microsoft Graph Change Notification receiver
+      parameters:
+        - name: validationToken
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a10
+  /v1/search:
+    get:
+      operationId: SearchController_search
+      summary: Full-text search across mail threads
+      parameters:
+        - name: q
+          required: true
+          in: query
+          schema:
+            example: launch update
+            type: string
+        - name: accountId
+          required: false
+          in: query
+          schema:
+            example: 018f0000-0000-7000-8000-000000000010
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            default: 20
+            type: number
+      responses:
+        "200":
+          description: ""
+      tags:
+        - Search
+      security:
+        - bearer: []
+  /v1/calendar/events:
+    get:
+      operationId: CalendarController_listEvents
+      summary: List calendar events in date range
+      parameters:
+        - name: start
+          required: false
+          in: query
+          schema:
+            example: 2026-10-01T00:00:00Z
+            type: string
+        - name: end
+          required: false
+          in: query
+          schema:
+            example: 2026-10-31T23:59:59Z
+            type: string
+        - name: accountId
+          required: false
+          in: query
+          schema:
+            example: 018f0000-0000-7000-8000-000000000010
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: &a11
+        - Calendar
+      security: &a12
+        - bearer: []
+    post:
+      operationId: CalendarController_createEvent
+      summary: Create a calendar event
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCalendarEventDto"
+      responses:
+        "201":
+          description: ""
+      tags: *a11
+      security: *a12
+  /v1/calendar/events/{id}:
+    delete:
+      operationId: CalendarController_deleteEvent
+      summary: Delete a calendar event
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a11
+      security: *a12
+  /v1/tasks:
+    get:
+      operationId: TasksController_listTasks
+      summary: List all tasks for authenticated user
+      parameters: []
+      responses:
+        "200":
+          description: ""
+      tags: &a13
+        - Tasks
+      security: &a14
+        - bearer: []
+    post:
+      operationId: TasksController_createTask
+      summary: Create a new task
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTaskDto"
+      responses:
+        "201":
+          description: ""
+      tags: *a13
+      security: *a14
+  /v1/tasks/{id}:
+    patch:
+      operationId: TasksController_updateTask
+      summary: Update or complete a task
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTaskDto"
+      responses:
+        "200":
+          description: ""
+      tags: *a13
+      security: *a14
+    delete:
+      operationId: TasksController_deleteTask
+      summary: Delete a task
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      tags: *a13
+      security: *a14
+  /v1/ai/summarize:
+    post:
+      operationId: AiController_summarize
+      summary: Summarize thread key points, sentiment, and action items
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SummarizeThreadDto"
+      responses:
+        "200":
+          description: ""
+      tags: &a15
+        - AI
+      security: &a16
+        - bearer: []
+  /v1/ai/draft-reply:
+    post:
+      operationId: AiController_draftReply
+      summary: Generate a tone-tailored draft response to a thread
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateReplyDto"
+      responses:
+        "200":
+          description: ""
+      tags: *a15
+      security: *a16
+  /v1/ai/adjust-tone:
+    post:
+      operationId: AiController_adjustTone
+      summary: Adjust tone of draft text (professional, friendly, concise, casual)
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdjustToneDto"
+      responses:
+        "200":
+          description: ""
+      tags: *a15
+      security: *a16
+  /v1/ai/transcribe-assist:
+    post:
+      operationId: AiController_transcribeAssist
+      summary: Convert raw voice dictation into an organized email draft
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranscribeAssistDto"
+      responses:
+        "200":
+          description: ""
+      tags: *a15
+      security: *a16
+  /v1/ai/stream-reply:
+    post:
+      operationId: AiController_streamReply
+      summary: Stream reply draft via Server-Sent Events (SSE) with cancellation support
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateReplyDto"
+      responses:
+        "201":
+          description: ""
+      tags: *a15
+      security: *a16
+  /v1/notifications/token:
+    post:
+      operationId: NotificationsController_registerToken
+      summary: Register device push notification token
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterNotificationTokenDto"
+      responses:
+        "200":
+          description: ""
+      tags: &a17
+        - Notifications
+      security: &a18
+        - bearer: []
+    delete:
+      operationId: NotificationsController_unregisterToken
+      summary: Unregister device push notification token
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UnregisterNotificationTokenDto"
+      responses:
+        "200":
+          description: ""
+      tags: *a17
+      security: *a18
+  /health:
+    get:
+      operationId: AdminController_getHealth
+      summary: Liveness health check endpoint
+      parameters: []
+      responses:
+        "200":
+          description: ""
+      tags: &a19
+        - Admin & Privacy
+  /ready:
+    get:
+      operationId: AdminController_getReadiness
+      summary: Readiness probe checking database and redis connectivity
+      parameters: []
+      responses:
+        "200":
+          description: ""
+      tags: *a19
+  /v1/admin/metrics:
+    get:
+      operationId: AdminController_getMetrics
+      summary: Get aggregated system metrics
+      parameters: []
+      responses:
+        "200":
+          description: ""
+      tags: *a19
+      security:
+        - bearer: []
+  /v1/admin/audit-logs:
+    get:
+      operationId: AdminController_getAuditLogs
+      summary: Get security and access audit logs for current user
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            default: 50
+            type: number
+      responses:
+        "200":
+          description: ""
+      tags: *a19
+      security:
+        - bearer: []
+  /v1/users/me/export:
+    get:
+      operationId: AdminController_exportUserData
+      summary: "GDPR Data Portability: Export all user data as JSON"
+      parameters: []
+      responses:
+        "200":
+          description: ""
+      tags: *a19
+      security:
+        - bearer: []
+  /v1/users/me:
+    delete:
+      operationId: AdminController_deleteUserAccount
+      summary: "GDPR Right to Erasure: Permanent cascading account purge"
+      parameters: []
+      responses:
+        "200":
+          description: ""
+      tags: *a19
+      security:
+        - bearer: []
+info:
+  title: Inbox Companion API
+  description: Secure, offline-first personal AI email assistant API. Full support
+    for OIDC, rotating refresh tokens, RLS data isolation, outbox queue replay,
+    and local search.
+  version: 1.0.0
+  contact: {}
+tags:
+  - name: Auth
+    description: OIDC authentication, session management, and token rotation
+  - name: Accounts
+    description: Connected mailbox accounts (Google, Microsoft)
+  - name: Mail
+    description: Threads, messages, message bodies, and sending
+  - name: Drafts
+    description: Autosaved drafts and reply compositions
+  - name: Scheduling
+    description: Scheduled email sends with timezone support
+  - name: Sync
+    description: Cursor-based delta pull and idempotent outbox mutations
+  - name: Search
+    description: Full-text search with ranking and highlighting
+  - name: Calendar
+    description: Calendar events, date ranges, and meeting links
+  - name: Tasks
+    description: Action items linked to email threads
+  - name: AI
+    description: Zero-PII-persistence thread summaries and drafted replies
+  - name: Notifications
+    description: Device push notification tokens
+  - name: Admin
+    description: System metrics, health, and audit logs
+servers: []
+components:
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+  schemas:
+    OidcLoginDto:
+      type: object
+      properties:
+        provider:
+          type: string
+          enum:
+            - google
+            - microsoft
+          example: google
+        idToken:
+          type: string
+          description: OIDC Identity Token issued by provider
+          example: eyJhbGciOiJSUzI1NiIs...
+        deviceName:
+          type: string
+          example: Alex's Pixel 9 Pro
+        platform:
+          type: string
+          example: android
+        appVersion:
+          type: string
+          example: 1.0.0
+        pushToken:
+          type: string
+          example: fcm_push_token_xyz
+      required:
+        - provider
+        - idToken
+    AuthTokensResponseDto:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1Ni...
+        refreshToken:
+          type: string
+          example: eyJhbGciOiJIUzI1Ni...
+        expiresIn:
+          type: number
+          example: 900
+          description: Access token expiration in seconds (15 minutes)
+        user:
+          type: object
+          example:
+            id: 018f0000-0000-7000-8000-000000000001
+            email: alex.morgan@example.com
+            displayName: Alex Morgan
+      required:
+        - accessToken
+        - refreshToken
+        - expiresIn
+        - user
+    RefreshTokenDto:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          description: Active rotating refresh token
+          example: eyJhbGciOiJIUzI1Ni...
+      required:
+        - refreshToken
+    SessionResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 018f0000-0000-7000-8000-000000000030
+        deviceName:
+          type: string
+          example: Alex's Pixel 9 Pro
+        platform:
+          type: string
+          example: android
+        ipAddress:
+          type: string
+          example: 192.168.1.100
+        userAgent:
+          type: string
+          example: InboxCompanion/1.0.0 (Android 14)
+        createdAt:
+          type: string
+          example: 2026-10-13T12:00:00Z
+        lastActiveAt:
+          type: string
+          example: 2026-10-13T12:30:00Z
+        isCurrent:
+          type: boolean
+          example: true
+      required:
+        - id
+        - createdAt
+        - lastActiveAt
+        - isCurrent
+    ConnectCallbackDto:
+      type: object
+      properties:
+        provider:
+          type: string
+          enum:
+            - google
+            - microsoft
+          example: google
+        code:
+          type: string
+          description: Authorization code returned by provider
+        codeVerifier:
+          type: string
+          description: PKCE code_verifier generated before launching auth flow
+        state:
+          type: string
+          description: State parameter for CSRF validation
+        redirectUri:
+          type: string
+          example: inboxcompanion://oauth/callback
+      required:
+        - provider
+        - code
+        - codeVerifier
+        - state
+        - redirectUri
+    DisconnectAccountDto:
+      type: object
+      properties:
+        purgeData:
+          type: boolean
+          default: true
+          description: Purge all cached emails, threads and drafts
+    UpdateThreadDto:
+      type: object
+      properties:
+        isStarred:
+          type: boolean
+          example: true
+        isUnread:
+          type: boolean
+          example: false
+        folder:
+          type: string
+          example: archive
+    ModifyThreadActionDto:
+      type: object
+      properties:
+        action:
+          type: string
+          enum:
+            - mark_read
+            - mark_unread
+            - star
+            - unstar
+            - archive
+            - trash
+            - apply_label
+            - remove_label
+          example: mark_read
+        labelName:
+          type: string
+          example: Finance
+        eTag:
+          type: string
+          description: Optimistic concurrency ETag or updated_at version token
+      required:
+        - action
+    BulkModifyThreadsDto:
+      type: object
+      properties:
+        threadIds:
+          example:
+            - thread-1
+            - thread-2
+          type: array
+          items:
+            type: string
+        action:
+          type: string
+          enum:
+            - mark_read
+            - mark_unread
+            - star
+            - unstar
+            - archive
+            - trash
+            - apply_label
+            - remove_label
+          example: archive
+        labelName:
+          type: string
+          example: Receipts
+      required:
+        - threadIds
+        - action
+    RecipientDto:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Alex Morgan
+        email:
+          type: string
+          example: alex@example.com
+      required:
+        - name
+        - email
+    SendMessageDto:
+      type: object
+      properties:
+        accountId:
+          type: string
+          example: 018f0000-0000-7000-8000-000000000010
+        to:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecipientDto"
+        cc:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecipientDto"
+        bcc:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecipientDto"
+        subject:
+          type: string
+          example: Project Update
+        bodyPlain:
+          type: string
+          example: Hello team, here is the latest update.
+        bodyHtml:
+          type: string
+          example: <p>Hello team, here is the latest update.</p>
+        replyToThreadId:
+          type: string
+      required:
+        - accountId
+        - to
+        - subject
+        - bodyPlain
+    CreateLabelDto:
+      type: object
+      properties:
+        accountId:
+          type: string
+          example: 018f0000-0000-7000-8000-000000000010
+        name:
+          type: string
+          example: Finance
+        colorHex:
+          type: string
+          example: "#10B981"
+      required:
+        - accountId
+        - name
+        - colorHex
+    CreateDraftDto:
+      type: object
+      properties:
+        accountId:
+          type: string
+          example: 018f0000-0000-7000-8000-000000000010
+        replyThreadId:
+          type: string
+        replyMessageId:
+          type: string
+        toRecipients:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecipientDto"
+        ccRecipients:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecipientDto"
+        bccRecipients:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecipientDto"
+        subject:
+          type: string
+          example: Quarterly Planning
+        bodyPlain:
+          type: string
+          example: Here are the draft notes...
+        bodyHtml:
+          type: string
+          example: <p>Here are the draft notes...</p>
+        attachmentsMeta:
+          example: &a20 []
+          type: array
+          items:
+            type: string
+      required:
+        - accountId
+    UpdateDraftDto:
+      type: object
+      properties:
+        accountId:
+          type: string
+          example: 018f0000-0000-7000-8000-000000000010
+        replyThreadId:
+          type: string
+        replyMessageId:
+          type: string
+        toRecipients:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecipientDto"
+        ccRecipients:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecipientDto"
+        bccRecipients:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecipientDto"
+        subject:
+          type: string
+          example: Quarterly Planning
+        bodyPlain:
+          type: string
+          example: Here are the draft notes...
+        bodyHtml:
+          type: string
+          example: <p>Here are the draft notes...</p>
+        attachmentsMeta:
+          example: *a20
+          type: array
+          items:
+            type: string
+      required:
+        - accountId
+    SendDraftDto:
+      type: object
+      properties:
+        draftId:
+          type: string
+          description: ID of the draft to send
+        payloadHash:
+          type: string
+          description: SHA-256 hex hash of the final reviewed payload to ensure user
+            reviewed exact content
+          example: a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3
+        undoWindowSeconds:
+          type: number
+          description: Undo window duration in seconds (0 to 30s). Defaults to 10s
+          default: 10
+          minimum: 0
+          maximum: 30
+        scheduledAt:
+          type: string
+          description: Scheduled send timestamp (ISO-8601 UTC)
+          example: 2026-10-15T09:00:00.000Z
+        timezone:
+          type: string
+          description: Client timezone identifier for scheduled send (e.g.
+            "America/New_York", "UTC")
+          default: UTC
+        followUpIfNoReplyDays:
+          type: number
+          description: Automatically trigger a reminder if no reply is received within N
+            days
+          example: 3
+        reminderAt:
+          type: string
+          description: Explicit reminder timestamp for this thread (ISO-8601)
+      required:
+        - draftId
+        - payloadHash
+    UploadAttachmentDto:
+      type: object
+      properties:
+        filename:
+          type: string
+          example: financial_report.pdf
+        contentType:
+          type: string
+          example: application/pdf
+        base64Data:
+          type: string
+          description: Base64 encoded binary file content
+      required:
+        - filename
+        - contentType
+        - base64Data
+    ScheduleDraftDto:
+      type: object
+      properties:
+        accountId:
+          type: string
+          example: 018f0000-0000-7000-8000-000000000010
+        draftId:
+          type: string
+          example: 018f0000-0000-7000-8000-000000000020
+        scheduledAt:
+          type: string
+          example: 2026-10-15T09:00:00Z
+        timezone:
+          type: string
+          example: America/New_York
+          default: UTC
+      required:
+        - accountId
+        - draftId
+        - scheduledAt
+    OutboxItemDto:
+      type: object
+      properties:
+        idempotencyKey:
+          type: string
+          example: op-018f0000-0000-7000
+        accountId:
+          type: string
+          example: 018f0000-0000-7000-8000-000000000010
+        actionType:
+          type: string
+          example: mark_read
+          enum:
+            - mark_read
+            - mark_unread
+            - star
+            - unstar
+            - archive
+            - trash
+        targetId:
+          type: string
+          example: 018f0000-0000-7000-8000-000000000020
+        payload:
+          type: object
+          example: {}
+      required:
+        - idempotencyKey
+        - accountId
+        - actionType
+        - targetId
+    PushOutboxBatchDto:
+      type: object
+      properties:
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/OutboxItemDto"
+      required:
+        - operations
+    CreateCalendarEventDto:
+      type: object
+      properties:
+        accountId:
+          type: string
+          example: 018f0000-0000-7000-8000-000000000010
+        title:
+          type: string
+          example: Product Sync & Design Review
+        description:
+          type: string
+          example: Discuss Q4 roadmap and design iterations
+        location:
+          type: string
+          example: Conference Room B / Virtual
+        joinUrl:
+          type: string
+          example: https://meet.google.com/abc-defg-hij
+        startTime:
+          type: string
+          example: 2026-10-15T14:00:00Z
+        endTime:
+          type: string
+          example: 2026-10-15T15:00:00Z
+        isAllDay:
+          type: boolean
+          default: false
+        attendees:
+          example:
+            - alex@example.com
+            - taylor@example.com
+          type: array
+          items:
+            type: string
+      required:
+        - accountId
+        - title
+        - startTime
+        - endTime
+    CreateTaskDto:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Review sales deck before customer call
+        threadId:
+          type: string
+          example: 018f0000-0000-7000-8000-000000000020
+        dueDate:
+          type: string
+          example: 2026-10-18T17:00:00Z
+      required:
+        - title
+    UpdateTaskDto:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Review sales deck before customer call
+        isCompleted:
+          type: boolean
+          example: true
+        dueDate:
+          type: string
+          example: 2026-10-19T17:00:00Z
+    SummarizeThreadDto:
+      type: object
+      properties:
+        threadId:
+          type: string
+          example: 018f0000-0000-7000-8000-000000000020
+        redactPii:
+          type: boolean
+          description: Mask email addresses and phone numbers before AI processing
+          default: true
+      required:
+        - threadId
+    GenerateReplyDto:
+      type: object
+      properties:
+        threadId:
+          type: string
+          example: 018f0000-0000-7000-8000-000000000020
+        tone:
+          type: string
+          example: professional
+          enum:
+            - professional
+            - friendly
+            - concise
+            - casual
+          default: professional
+        userPrompt:
+          type: string
+          example: Confirm availability for Friday at 2 PM
+        redactPii:
+          type: boolean
+          description: Mask email addresses and phone numbers before AI processing
+          default: true
+      required:
+        - threadId
+    AdjustToneDto:
+      type: object
+      properties:
+        text:
+          type: string
+          example: Please send me the report ASAP.
+        targetTone:
+          type: string
+          example: friendly
+          enum:
+            - professional
+            - friendly
+            - concise
+            - casual
+      required:
+        - text
+        - targetTone
+    TranscribeAssistDto:
+      type: object
+      properties:
+        rawDictation:
+          type: string
+          description: Raw transcribed voice dictation text to convert into an email draft
+          example: hey Alex let us meet next Tuesday around two pm to go over the budget
+            and slides thanks
+        tone:
+          type: string
+          example: professional
+          enum:
+            - professional
+            - friendly
+            - concise
+            - casual
+          default: professional
+      required:
+        - rawDictation
+    RegisterNotificationTokenDto:
+      type: object
+      properties:
+        token:
+          type: string
+          example: fcm_token_xyz123
+        platform:
+          type: string
+          example: android
+          enum:
+            - android
+            - ios
+            - web
+        deviceId:
+          type: string
+          example: 018f0000-0000-7000-8000-000000000030
+      required:
+        - token
+        - platform
+    UnregisterNotificationTokenDto:
+      type: object
+      properties:
+        token:
+          type: string
+          example: fcm_token_xyz123
+      required:
+        - token

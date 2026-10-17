@@ -1,0 +1,38 @@
+groups:
+  - name: inbox_companion_alerts
+    rules:
+      - alert: HighHttpErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) * 100 > 2
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High HTTP 5xx error rate detected on {{ $labels.service }}"
+          description: "5xx HTTP errors exceed 2% over the last 5 minutes on path {{ $labels.path }}."
+
+      - alert: BullMqSyncQueueLag
+        expr: bullmq_queue_waiting_jobs{queue=~"sync-.*"} > 500
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "BullMQ sync queue backlog accumulating"
+          description: "Queue {{ $labels.queue }} has over 500 pending sync jobs waiting for more than 5 minutes."
+
+      - alert: HighProviderRateLimiting
+        expr: rate(provider_requests_total{status="429"}[5m]) > 5
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High volume of 429 Rate Limits from Mail Providers"
+          description: "Mail provider {{ $labels.provider }} returned >5 rate limit (429) responses per second."
+
+      - alert: EnvelopeEncryptionFailure
+        expr: increase(envelope_encryption_errors_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "KMS Envelope Encryption / Decryption error"
+          description: "KMS adapter reported failed DEK wrap or unwrap operation. Immediate security inspection required."

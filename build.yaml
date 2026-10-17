@@ -1,0 +1,12 @@
+targets:
+  $default:
+    builders:
+      freezed:
+        generate_for:
+          - lib/data/models/**
+      json_serializable:
+        generate_for:
+          - lib/data/models/**
+      drift_dev:
+        generate_for:
+          - lib/data/local/**

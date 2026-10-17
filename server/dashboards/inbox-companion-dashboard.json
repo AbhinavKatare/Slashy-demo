@@ -1,0 +1,80 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "HTTP Request Throughput & Status Codes (req/s)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total[1m])) by (status)",
+          "legendFormat": "{{status}}"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "title": "p95 & p99 Latency by Route (ms)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_ms_bucket[1m])) by (le, path))",
+          "legendFormat": "p95 - {{path}}"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_ms_bucket[1m])) by (le, path))",
+          "legendFormat": "p99 - {{path}}"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "title": "BullMQ Active vs Waiting Jobs",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "bullmq_queue_active_jobs",
+          "legendFormat": "Active - {{queue}}"
+        },
+        {
+          "expr": "bullmq_queue_waiting_jobs",
+          "legendFormat": "Waiting - {{queue}}"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 4,
+      "title": "Provider API Rate Limit Backoff Events (429/503)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(rate(provider_requests_total{status=~\"429|503\"}[1m])) by (provider)",
+          "legendFormat": "Throttled - {{provider}}"
+        }
+      ]
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["inbox-companion", "production"],
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Inbox Companion - Production Telemetry",
+  "version": 1
+}
