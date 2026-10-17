@@ -34,7 +34,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
       final db = ref.read(appDatabaseProvider);
       final accountId =
           ref.read(authServiceProvider).state.currentAccount?.id ??
-          'acc_work_01';
+              'acc_work_01';
       final now = DateTime.now();
 
       for (final tsk in MockSeedData.tasks) {
@@ -246,9 +246,8 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                   task.title,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
-                    decoration: task.isCompleted
-                        ? TextDecoration.lineThrough
-                        : null,
+                    decoration:
+                        task.isCompleted ? TextDecoration.lineThrough : null,
                     color: task.isCompleted
                         ? theme.colorScheme.onSurfaceVariant
                         : theme.colorScheme.onSurface,
@@ -290,8 +289,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
             IconButton(
               icon: const Icon(Icons.link, size: 20),
               tooltip: 'Open Linked Thread',
-              onPressed: () =>
-                  context.push('/conversation/${task.threadId}'),
+              onPressed: () => context.push('/conversation/${task.threadId}'),
             ),
           IconButton(
             icon: const Icon(Icons.delete_outline, size: 18),
@@ -354,8 +352,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                         initialDate:
                             DateTime.now().add(const Duration(days: 1)),
                         firstDate: DateTime.now(),
-                        lastDate: DateTime.now()
-                            .add(const Duration(days: 365)),
+                        lastDate: DateTime.now().add(const Duration(days: 365)),
                       );
                       if (picked != null) {
                         setDlg(() => dueDate = picked);
@@ -380,7 +377,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                   final db = ref.read(appDatabaseProvider);
                   final accountId =
                       ref.read(authServiceProvider).state.currentAccount?.id ??
-                      'acc_work_01';
+                          'acc_work_01';
                   final taskId = 'tsk_${const Uuid().v4().substring(0, 8)}';
                   await db.upsertTask(
                     TasksCompanion(
@@ -408,8 +405,8 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
       context: context,
       builder: (dlg) => AlertDialog(
         title: const Text('Delete Task?'),
-        content:
-            const Text('Are you sure you want to permanently delete this task?'),
+        content: const Text(
+            'Are you sure you want to permanently delete this task?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dlg).pop(),

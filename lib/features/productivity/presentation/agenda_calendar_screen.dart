@@ -35,7 +35,7 @@ class _AgendaCalendarScreenState extends ConsumerState<AgendaCalendarScreen> {
       final db = ref.read(appDatabaseProvider);
       final accountId =
           ref.read(authServiceProvider).state.currentAccount?.id ??
-          'acc_work_01';
+              'acc_work_01';
       final now = DateTime.now();
 
       // Seed events fixed to the current calendar day in local time
@@ -43,9 +43,11 @@ class _AgendaCalendarScreenState extends ConsumerState<AgendaCalendarScreen> {
       final todayAfternoon = DateTime(now.year, now.month, now.day, 13, 30);
       final todayEvening = DateTime(now.year, now.month, now.day, 16, 0);
       final tomorrow = now.add(const Duration(days: 1));
-      final tomorrowMidday = DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 11, 0);
+      final tomorrowMidday =
+          DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 11, 0);
       final dayAfter = now.add(const Duration(days: 2));
-      final dayAfterAfternoon = DateTime(dayAfter.year, dayAfter.month, dayAfter.day, 14, 0);
+      final dayAfterAfternoon =
+          DateTime(dayAfter.year, dayAfter.month, dayAfter.day, 14, 0);
 
       await db.upsertEvent(
         EventsCompanion(
@@ -112,7 +114,8 @@ class _AgendaCalendarScreenState extends ConsumerState<AgendaCalendarScreen> {
           title: const Value('Client Demo & Showcase Walkthrough'),
           description: const Value('Interactive walkthrough for stakeholders.'),
           startTime: Value(dayAfterAfternoon),
-          endTime: Value(dayAfterAfternoon.add(const Duration(hours: 1, minutes: 30))),
+          endTime: Value(
+              dayAfterAfternoon.add(const Duration(hours: 1, minutes: 30))),
           location: const Value('Main Presentation Suite'),
           conferenceUrl: const Value('https://meet.google.com/showcase-demo'),
           organizerEmail: const Value('jordan@design-tokens.test'),
@@ -157,8 +160,7 @@ class _AgendaCalendarScreenState extends ConsumerState<AgendaCalendarScreen> {
               ButtonSegment<String>(value: 'all', label: Text('All')),
             ],
             selected: {_viewMode},
-            onSelectionChanged: (set) =>
-                setState(() => _viewMode = set.first),
+            onSelectionChanged: (set) => setState(() => _viewMode = set.first),
           ),
           const SizedBox(width: SpacingTokens.md),
         ],
@@ -214,7 +216,8 @@ class _AgendaCalendarScreenState extends ConsumerState<AgendaCalendarScreen> {
                   }),
                 ),
                 TextButton(
-                  onPressed: () => setState(() => _selectedDate = DateTime.now()),
+                  onPressed: () =>
+                      setState(() => _selectedDate = DateTime.now()),
                   child: Text(
                     _viewMode == 'week'
                         ? 'Week of ${DateFormat('MMM d').format(_selectedDate)}'
@@ -315,7 +318,8 @@ class _AgendaCalendarScreenState extends ConsumerState<AgendaCalendarScreen> {
                   padding: const EdgeInsets.all(SpacingTokens.md),
                   itemCount: filtered.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 12),
-                  itemBuilder: (ctx, i) => _buildEventCard(context, filtered[i]),
+                  itemBuilder: (ctx, i) =>
+                      _buildEventCard(context, filtered[i]),
                 );
               },
             ),
