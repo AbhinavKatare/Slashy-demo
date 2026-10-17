@@ -29,8 +29,8 @@ class ProductivityController {
     required this.syncService,
     required this.scheduler,
     IAppLogger? logger,
-  }) : _logger = logger ?? AppLogger(),
-       _uuid = const Uuid();
+  })  : _logger = logger ?? AppLogger(),
+        _uuid = const Uuid();
 
   final AppDatabase db;
   final SyncService syncService;
@@ -173,7 +173,8 @@ class ProductivityController {
         id: const Value('evt_03'),
         accountId: Value(accountId),
         title: const Value('Q4 Product Roadmap Review'),
-        description: const Value('Cross-functional review of Q4 priorities and milestones.'),
+        description: const Value(
+            'Cross-functional review of Q4 priorities and milestones.'),
         startTime: Value(nowUtc.add(const Duration(hours: 7))),
         endTime: Value(nowUtc.add(const Duration(hours: 8))),
         location: const Value('Zoom — link in invite'),

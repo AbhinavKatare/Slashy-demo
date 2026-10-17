@@ -76,7 +76,8 @@ class MockSeedData {
       'accountId': 'acc_work_01',
       'subject':
           'Architecture Review: Multi-platform Design Tokens & Motion Specs',
-      'snippet': 'The proposed M3 color scheme and typography hierarchy look great. Let us finalize the touch target constraints before Wednesday.',
+      'snippet':
+          'The proposed M3 color scheme and typography hierarchy look great. Let us finalize the touch target constraints before Wednesday.',
       'lastMessageAt': '2026-10-12T14:35:00Z',
       'isUnread': true,
       'isStarred': true,
@@ -107,7 +108,8 @@ class MockSeedData {
       'accountId': 'acc_work_01',
       'subject':
           'Sprint 42 Deliverables: Offline Queue & Idempotency Key Audits',
-      'snippet': 'All idempotent writes are now attaching UUID v4 headers. Tested retry with jitter backoff on unstable network connections.',
+      'snippet':
+          'All idempotent writes are now attaching UUID v4 headers. Tested retry with jitter backoff on unstable network connections.',
       'lastMessageAt': '2026-10-12T11:20:00Z',
       'isUnread': false,
       'isStarred': false,
@@ -132,7 +134,8 @@ class MockSeedData {
       'id': 'th_103',
       'accountId': 'acc_work_01',
       'subject': 'Quarterly Compliance & PII Sanitization Certification',
-      'snippet': 'Please review the updated logging interceptor. Notice how emails and bearer tokens are automatically scrubbed prior to console output.',
+      'snippet':
+          'Please review the updated logging interceptor. Notice how emails and bearer tokens are automatically scrubbed prior to console output.',
       'lastMessageAt': '2026-10-11T16:45:00Z',
       'isUnread': false,
       'isStarred': true,
@@ -180,8 +183,10 @@ class MockSeedData {
       'bcc': <Map<String, dynamic>>[],
       'subject':
           'Architecture Review: Multi-platform Design Tokens & Motion Specs',
-      'bodyText': 'Hi Alex, I put together the design tokens draft with high-contrast accessibility support. Looking forward to your thoughts!',
-      'bodyHtml': '<p>Hi Alex,<br>I put together the design tokens draft with high-contrast accessibility support. Looking forward to your thoughts!</p>',
+      'bodyText':
+          'Hi Alex, I put together the design tokens draft with high-contrast accessibility support. Looking forward to your thoughts!',
+      'bodyHtml':
+          '<p>Hi Alex,<br>I put together the design tokens draft with high-contrast accessibility support. Looking forward to your thoughts!</p>',
       'sentAt': '2026-10-12T14:35:00Z',
       'isDraft': false,
       'attachments': [
@@ -200,8 +205,10 @@ class MockSeedData {
     {
       'id': 'drf_01',
       'threadId': 'th_101',
-      'subject': 'Re: Architecture Review: Multi-platform Design Tokens & Motion Specs',
-      'bodyText': 'Hi Jordan, reviewing the tokens now. Elevation 2 and 4 look great on dark mode.',
+      'subject':
+          'Re: Architecture Review: Multi-platform Design Tokens & Motion Specs',
+      'bodyText':
+          'Hi Jordan, reviewing the tokens now. Elevation 2 and 4 look great on dark mode.',
       'updatedAt': '2026-10-12T15:00:00Z',
       'recipients': [
         {
@@ -264,7 +271,8 @@ class MockSeedData {
     },
     {
       'id': 'tsk_02',
-      'title': 'Validate 200% text scale accessibility tests without layout overflow',
+      'title':
+          'Validate 200% text scale accessibility tests without layout overflow',
       'threadId': 'th_101',
       'dueAt': '2026-10-14T12:00:00Z',
       'isCompleted': false,
@@ -288,7 +296,8 @@ class MockSeedData {
     },
     {
       'id': 'tsk_05',
-      'title': 'Schedule biweekly sync with Jordan re: Motion Spec finalization',
+      'title':
+          'Schedule biweekly sync with Jordan re: Motion Spec finalization',
       'threadId': 'th_103',
       'dueAt': '2026-10-18T09:00:00Z',
       'isCompleted': false,
@@ -299,12 +308,14 @@ class MockSeedData {
   static const Map<String, dynamic> aiDraftReply = {
     'draftSubject':
         'Re: Architecture Review: Multi-platform Design Tokens & Motion Specs',
-    'draftBody': 'Hi Jordan,\n\nThanks for sharing the updated design tokens. The contrast ratios in both light and dark modes meet WCAG AAA standards. I have confirmed the 48dp touch target requirements across buttons and chips.\n\nBest regards,\nAlex',
+    'draftBody':
+        'Hi Jordan,\n\nThanks for sharing the updated design tokens. The contrast ratios in both light and dark modes meet WCAG AAA standards. I have confirmed the 48dp touch target requirements across buttons and chips.\n\nBest regards,\nAlex',
     'confidenceScore': 0.94,
   };
 
   static const Map<String, dynamic> aiSummary = {
-    'overview': 'Discussion regarding multi-platform design tokens, Material 3 color schemes, and accessibility guidelines.',
+    'overview':
+        'Discussion regarding multi-platform design tokens, Material 3 color schemes, and accessibility guidelines.',
     'keyTakeaways': [
       'Design tokens have been finalized for light, dark, and high-contrast modes.',
       'Touch targets must adhere strictly to 48dp minimum dimensions.',

@@ -28,7 +28,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       final path = state.uri.path;
 
       // Gallery, Calendar, and Tasks are allowed directly for inspection/preview
-      if (path == '/gallery' || path == '/calendar' || path == '/tasks') return null;
+      if (path == '/gallery' || path == '/calendar' || path == '/tasks')
+        return null;
 
       if (authStatus == AuthStatus.locked) {
         if (path != '/lock') return '/lock';
